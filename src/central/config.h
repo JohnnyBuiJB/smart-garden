@@ -37,4 +37,4 @@ static const uint32_t WATERING_DURATION_MS[NUM_PLANTS] = {
 
 // ── Battery ───────────────────────────────────────────────────────────────────
 #define BATTERY_DIVIDER_RATIO   2.0f
-#define BATTERY_LOW_VOLTS       3.5f    // skip watering below this voltage
+#define BATTERY_LOW_VOLTS       4.4f    // skip watering below this voltage (4× 1.1V AA cutoff)

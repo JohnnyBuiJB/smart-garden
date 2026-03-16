@@ -22,7 +22,7 @@ Automated plant watering system powered entirely by batteries. Up to 10 plants a
 │   ESP32-C3           ESP32-C3              ESP32-C3          │
 │   Capacitive         Capacitive            Capacitive        │
 │   moisture           moisture              moisture          │
-│   LiPo 1000mAh       LiPo 1000mAh          LiPo 1000mAh     │
+│   3× AA + LDO        3× AA + LDO           3× AA + LDO      │
 │        │                  │                     │            │
 │        └──────────────────┴──── ESP-NOW ────────┘            │
 │                                     │                        │
@@ -30,7 +30,7 @@ Automated plant watering system powered entirely by batteries. Up to 10 plants a
 │                            ESP32-WROOM-32                    │
 │                            10 solenoid valves                │
 │                            1 submersible pump                │
-│                            LiPo 10 000 mAh                  │
+│                            12× AA (4S3P) + LDOs             │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -38,7 +38,7 @@ Automated plant watering system powered entirely by batteries. Up to 10 plants a
 
 - **MCU:** ESP32-C3 mini
 - **Sensor:** Capacitive soil moisture (3.3 V, analog output)
-- **Battery:** LiPo 1 000 mAh with TP4056 charging module
+- **Battery:** 3× AA alkaline in series (4.5 V) → MCP1700 3.3 V LDO
 - **Enclosure:** IP65, cable gland for sensor probe
 
 **Cycle (every 30 min):**
@@ -50,15 +50,15 @@ Automated plant watering system powered entirely by batteries. Up to 10 plants a
 ### Central Controller (×1)
 
 - **MCU:** ESP32-WROOM-32
-- **Actuators:** 10 normally-closed solenoid valves + 1 submersible pump (2× 8-ch relay modules)
-- **Battery:** LiPo 10 000 mAh with BMS + boost converter
+- **Actuators:** 10 normally-closed 5 V solenoid valves + 1 submersible pump (2× 8-ch relay modules)
+- **Battery:** 12× AA alkaline, 4S3P (4 in series × 3 in parallel = 6 V, ~7 500 mAh) → LD1117 3.3 V LDO + 7805 5 V LDO
 - **Enclosure:** IP65
 
 **Cycle (every 30 min):**
 1. Wake from deep sleep
 2. Open ESP-NOW receive window (60 s) — collect packets from all nodes
 3. For each plant with moisture < threshold → open valve → run pump → close valve
-4. Skip irrigation if battery voltage < 3.5 V
+4. Skip irrigation if battery voltage < 4.4 V
 5. Deep sleep, compensating for active time to stay in sync with nodes
 
 ---
@@ -72,7 +72,7 @@ Wireless link: **ESP-NOW** (peer-to-peer Wi-Fi, no router needed).
 struct SensorPacket {
     uint8_t  plant_id;      // 0–9
     float    moisture_pct;  // 0.0–100.0 (calibrated %)
-    float    battery_v;     // node LiPo voltage
+    float    battery_v;     // node battery voltage (AA pack)
     uint32_t uptime_s;      // seconds since last cold-boot (diagnostics)
 };
 ```
@@ -83,7 +83,7 @@ Nodes broadcast; the central controller is registered as a peer and acknowledges
 
 ## Power Budget
 
-### Sensor Node (1 000 mAh)
+### Sensor Node (3× AA = ~2 500 mAh)
 
 | State | Current | Duty | Average |
 |-------|---------|------|---------|
@@ -91,9 +91,9 @@ Nodes broadcast; the central controller is registered as a peer and acknowledges
 | Deep sleep | 0.005 mA | 99.7 % | ~0 mA |
 | **Total** | | | **~0.36 mA** |
 
-**Estimated lifetime:** 1 000 mAh ÷ 0.36 mA ≈ **115 days** (>1 month ✓)
+**Estimated lifetime:** 2 500 mAh ÷ 0.36 mA ≈ **115 days** (>1 month ✓)
 
-### Central Controller (10 000 mAh)
+### Central Controller (12× AA 4S3P = ~7 500 mAh)
 
 | State | Current | Duty | Average |
 |-------|---------|------|---------|
@@ -101,7 +101,9 @@ Nodes broadcast; the central controller is registered as a peer and acknowledges
 | Deep sleep | 0.01 mA | 96.4 % | ~0 mA |
 | **Total** | | | **~5.4 mA** |
 
-**Estimated lifetime:** 10 000 mAh ÷ 5.4 mA ≈ **77 days** (>1 month ✓)
+**Estimated lifetime:** 7 500 mAh ÷ 5.4 mA ≈ **57 days** (>1 month ✓)
+
+> 4S3P = 4 cells in series (6 V) × 3 parallel banks. Wire three 4×AA holders in parallel.
 
 ---
 
@@ -176,7 +178,7 @@ pio run -e central -t upload
 | `MOISTURE_THRESHOLD[i]` | `40.0 %` | Water plant `i` below this level |
 | `WATERING_DURATION_MS[i]` | `5000 ms` | Pump run time per watering event |
 | `RECEIVE_WINDOW_MS` | `60 000 ms` | How long to listen for packets each cycle |
-| `BATTERY_LOW_VOLTS` | `3.5 V` | Skip irrigation below this voltage |
+| `BATTERY_LOW_VOLTS` | `4.4 V` | Skip irrigation below this voltage (= 4× 1.1 V AA cutoff) |
 
 ---
 
@@ -210,26 +212,30 @@ pio run -e central -t upload
 
 > Avoid resistive sensors — they corrode in soil within weeks.
 
-### Batteries & Charging
+### Batteries & Power Regulation
 
 | Part | Qty | Search term | Recommended source |
 |------|-----|-------------|--------------------|
-| LiPo 1000 mAh (3.7V, JST-PH 2mm) | 10 | `LiPo 1000mAh 3.7V JST` | Amazon / Adafruit |
-| LiPo 10000 mAh (3.7V) | 1 | `LiPo 10000mAh single cell 3.7V` | Amazon / AliExpress |
-| TP4056 module (USB-C, with protection) | 10 | `TP4056 USB-C 1A with protection` | AliExpress (~$0.50 each) |
-| 2S BMS + 5V boost converter | 1 | `2S BMS 5V boost converter module` | AliExpress |
+| AA alkaline batteries | 42 | — | Supermarket / Amazon bulk pack |
+| 3×AA battery holder (with leads) | 10 | `3 AA battery holder with wire` | AliExpress / Amazon (~$0.50 each) |
+| 4×AA battery holder (with leads) | 3 | `4 AA battery holder with wire` | AliExpress / Amazon (~$0.50 each) |
+| MCP1700-3302E/TO (3.3 V LDO) | 10 | `MCP1700-3302E TO-92` | Mouser / Digi-Key (~$0.40 each) |
+| LD1117V33 (3.3 V LDO, TO-220) | 1 | `LD1117V33 TO-220` | Mouser / LCSC (~$0.20) |
+| 7805 (5 V regulator, TO-220) | 1 | `7805 5V regulator TO-220` | Mouser / LCSC (~$0.20) |
 
-> Get the TP4056 variant **with DW01A protection IC** (has 6 pads instead of 4) — it adds over-discharge protection.
+> 42 AA = 30 for sensor nodes (3× per node) + 12 for central controller (4S3P).
+> No charging circuits needed — replace batteries when depleted (~2–4 months).
 
 ### Actuators
 
 | Part | Qty | Search term | Recommended source |
 |------|-----|-------------|--------------------|
-| 12V NC solenoid valve (G1/4" or G1/2") | 10 | `12V solenoid valve normally closed G1/4` | AliExpress (~$3 each) |
+| 5V NC solenoid valve (G1/4" or G1/2") | 10 | `5V solenoid valve normally closed G1/4` | AliExpress (~$3 each) |
 | 5V mini submersible pump | 1 | `5V mini submersible water pump DC` | Amazon / AliExpress |
 | 8-channel 5V relay module | 2 | `8 channel 5V relay module Arduino` | Amazon / AliExpress |
 
-> Use **12V NC solenoids** — they fail safe (closed) when power is lost.
+> Use **5V NC solenoids** — compatible with the 7805-regulated 5 V rail and fail safe (closed) on power loss.
+> **Not 12V** — the AA pack only provides 6 V, not enough headroom for a 12 V boost.
 
 ### Enclosures & Connectors
 
@@ -250,9 +256,10 @@ pio run -e central -t upload
 
 | Category | Est. cost |
 |----------|-----------|
-| 10× sensor nodes (MCU + sensor + battery + charger) | ~$70 |
-| Central controller (MCU + relays + pump + valves + battery) | ~$60 |
+| 10× sensor nodes (MCU + sensor + AA batteries + LDO) | ~$55 |
+| Central controller (MCU + relays + pump + valves + AA batteries + LDOs) | ~$50 |
 | Enclosures + connectors + wire | ~$30 |
-| **Total** | **~$160** |
+| **Total** | **~$135** |
 
 AliExpress cuts this by ~30% if you can wait for shipping.
+AA batteries from a supermarket bulk pack (~$0.30/cell) keep costs low and replacements easy.
