@@ -177,3 +177,82 @@ pio run -e central -t upload
 | `WATERING_DURATION_MS[i]` | `5000 ms` | Pump run time per watering event |
 | `RECEIVE_WINDOW_MS` | `60 000 ms` | How long to listen for packets each cycle |
 | `BATTERY_LOW_VOLTS` | `3.5 V` | Skip irrigation below this voltage |
+
+---
+
+## Bill of Materials & Where to Buy
+
+### Recommended Retailers
+
+| Retailer | Best for | Ships from |
+|----------|----------|------------|
+| **AliExpress** | Lowest price, bulk quantities | China (1–4 weeks) |
+| **Amazon** | Fast delivery, returns | Local warehouse |
+| **Adafruit** | Quality modules, good docs | USA |
+| **SparkFun** | Quality modules, good docs | USA |
+| **Mouser / Digi-Key** | Industrial-grade parts, datasheets | USA/EU |
+| **LCSC** | Cheapest bare components | China |
+
+### Microcontrollers
+
+| Part | Qty | Search term | Recommended source |
+|------|-----|-------------|--------------------|
+| ESP32-C3 SuperMini | 10 | `ESP32-C3 SuperMini` | AliExpress (~$2 each) |
+| ESP32-WROOM-32 DevKit | 1 | `ESP32-DevKitC-32E` | Amazon / Mouser |
+
+> The **ESP32-C3 SuperMini** is the smallest/cheapest C3 board and has a 32.768 kHz crystal pad for accurate RTC.
+
+### Sensors
+
+| Part | Qty | Search term | Recommended source |
+|------|-----|-------------|--------------------|
+| Capacitive soil moisture v1.2 | 10 | `Capacitive Soil Moisture Sensor v1.2` | AliExpress (~$1 each) |
+
+> Avoid resistive sensors — they corrode in soil within weeks.
+
+### Batteries & Charging
+
+| Part | Qty | Search term | Recommended source |
+|------|-----|-------------|--------------------|
+| LiPo 1000 mAh (3.7V, JST-PH 2mm) | 10 | `LiPo 1000mAh 3.7V JST` | Amazon / Adafruit |
+| LiPo 10000 mAh (3.7V) | 1 | `LiPo 10000mAh single cell 3.7V` | Amazon / AliExpress |
+| TP4056 module (USB-C, with protection) | 10 | `TP4056 USB-C 1A with protection` | AliExpress (~$0.50 each) |
+| 2S BMS + 5V boost converter | 1 | `2S BMS 5V boost converter module` | AliExpress |
+
+> Get the TP4056 variant **with DW01A protection IC** (has 6 pads instead of 4) — it adds over-discharge protection.
+
+### Actuators
+
+| Part | Qty | Search term | Recommended source |
+|------|-----|-------------|--------------------|
+| 12V NC solenoid valve (G1/4" or G1/2") | 10 | `12V solenoid valve normally closed G1/4` | AliExpress (~$3 each) |
+| 5V mini submersible pump | 1 | `5V mini submersible water pump DC` | Amazon / AliExpress |
+| 8-channel 5V relay module | 2 | `8 channel 5V relay module Arduino` | Amazon / AliExpress |
+
+> Use **12V NC solenoids** — they fail safe (closed) when power is lost.
+
+### Enclosures & Connectors
+
+| Part | Qty | Search term | Recommended source |
+|------|-----|-------------|--------------------|
+| IP65 junction box ~100×68×50mm | 11 | `IP65 ABS junction box 100x68` | AliExpress / Amazon |
+| PG7 cable glands | 20 | `PG7 cable gland nylon` | AliExpress (~$0.20 each) |
+| JST-PH 2mm connector kit | 1 | `JST PH 2mm connector kit` | Amazon / Adafruit |
+| Silicone wire 24AWG | 1 roll | `24AWG silicone wire` | Amazon |
+
+### Passives (Mouser / LCSC)
+
+- 100 kΩ resistors × 20 (battery voltage dividers)
+- 10 kΩ resistors × 5 (pull-ups for GPIO0 + relay inputs)
+- 100 nF decoupling caps × 20
+
+### Approximate Total Cost
+
+| Category | Est. cost |
+|----------|-----------|
+| 10× sensor nodes (MCU + sensor + battery + charger) | ~$70 |
+| Central controller (MCU + relays + pump + valves + battery) | ~$60 |
+| Enclosures + connectors + wire | ~$30 |
+| **Total** | **~$160** |
+
+AliExpress cuts this by ~30% if you can wait for shipping.
