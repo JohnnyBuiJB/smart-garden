@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /Users/johnnybui/repos/smart-garden -not -path */.git/* -type d)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git remote:*)",
+      "Bash(pio --version)",
+      "Bash(pip install:*)",
+      "Bash(pio run:*)",
+      "Bash(ls -lh /Users/johnnybui/repos/smart-garden/*.asm)",
+      "Bash(jobs)"
+    ]
+  }
+}

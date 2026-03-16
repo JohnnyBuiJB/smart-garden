@@ -36,6 +36,10 @@
 *.exe
 *.out
 *.app
+*.asm
 
 # debug information files
 *.dwo
+
+# Build temporary files
+.pio
