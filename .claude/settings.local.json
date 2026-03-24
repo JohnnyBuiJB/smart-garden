@@ -10,7 +10,8 @@
       "Bash(pip install:*)",
       "Bash(pio run:*)",
       "Bash(ls -lh /Users/johnnybui/repos/smart-garden/*.asm)",
-      "Bash(jobs)"
+      "Bash(jobs)",
+      "Bash(git:*)"
     ]
   }
 }
