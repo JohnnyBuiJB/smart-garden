@@ -10,7 +10,7 @@ The long-term goal is a **balcony robotic greenhouse** — a compact, apartment-
 - **Phase 1** (current) — Autonomous watering: battery-powered ESP32 sensor nodes + central irrigation hub over ESP-NOW
 - **Phase 2** — ROS2 integration: companion computer (Raspberry Pi 4/5) bridges ESP32 data to ROS2 topics; Gazebo simulation of arm and garden bed begins using MoveIt2
 - **Phase 3** — Physical robot arm: deploy hardware informed by sim; migrate ESP32s to micro-ROS for native ROS2 pub/sub
-- **Phase 4** — Full autonomy: computer vision, task scheduling (seeding, harvesting, trimming), sunlight orientation
+- **Phase 4** — Full autonomy: computer vision, task scheduling, sunlight orientation; simulation migrates to **NVIDIA Isaac Sim + Isaac Lab** for photorealistic synthetic training data and RL-based dexterous manipulation (requires NVIDIA GPU)
 
 ## Build & Flash Commands
 

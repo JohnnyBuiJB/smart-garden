@@ -18,8 +18,9 @@
 ### Phase 2 — ROS2 Integration & Simulation
 - Introduce a companion computer (Raspberry Pi 4/5) running ROS2
 - Bridge node: reads ESP32 central data (serial/MQTT) → publishes ROS2 topics (`/soil_moisture`, `/battery_voltage`, `/irrigation_cmd`)
-- Begin Gazebo (Gz Sim) simulation of the arm and garden bed — no hardware needed yet
+- Begin **Gazebo (Gz Sim)** simulation of the arm and garden bed — no hardware needed yet
 - Validate motion planning concepts using MoveIt2 in sim
+- *Gazebo chosen here for lower barrier: no GPU required, mature MoveIt2 integration*
 
 ### Phase 3 — Robot Arm (Hardware)
 - Deploy physical robot arm informed by Gazebo simulation
@@ -31,6 +32,11 @@
 - Computer vision for plant health assessment and sunlight orientation
 - Task scheduling: seeding, harvesting, trimming
 - Full structured environment with defined plant slots
+- Migrate simulation to **NVIDIA Isaac Sim + Isaac Lab** (requires NVIDIA GPU):
+  - Photorealistic rendering for synthetic training data (sim-to-real for vision models)
+  - Isaac Lab (RL framework) for learning dexterous manipulation: grasping stems, trimming, harvesting
+  - Soft-body/deformable physics for realistic plant interaction (PhysX 5)
+- *Gazebo remains for control/integration testing; Isaac Sim used for ML training and RL policy development*
 
 ---
 
