@@ -6,7 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 The long-term goal is a **balcony robotic greenhouse** — a compact, apartment-scale system where robot arms handle all farming tasks (seeding, watering, trimming, harvesting, orienting plants toward sunlight). The slogan: *"every home deserves a garden."*
 
-**Phase 1** (current) is the autonomous watering/sensing foundation: battery-powered ESP32 sensor nodes report soil moisture over ESP-NOW to a central hub that controls irrigation valves. Phases beyond this will layer in robotic actuation, computer vision, and more.
+**Phased roadmap:**
+- **Phase 1** (current) — Autonomous watering: battery-powered ESP32 sensor nodes + central irrigation hub over ESP-NOW
+- **Phase 2** — ROS2 integration: companion computer (Raspberry Pi 4/5) bridges ESP32 data to ROS2 topics; Gazebo simulation of arm and garden bed begins using MoveIt2
+- **Phase 3** — Physical robot arm: deploy hardware informed by sim; migrate ESP32s to micro-ROS for native ROS2 pub/sub
+- **Phase 4** — Full autonomy: computer vision, task scheduling (seeding, harvesting, trimming), sunlight orientation
 
 ## Build & Flash Commands
 
