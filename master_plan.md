@@ -15,18 +15,15 @@
 - No mains power, no Wi-Fi router required
 - Target: 1 month unattended operation
 
-### Phase 2 — ROS2 Integration & Simulation
+### Phase 2 — ROS2, Simulation & Robot Arm
 - Introduce a companion computer (Raspberry Pi 4/5) running ROS2
-- Bridge node: reads ESP32 central data (serial/MQTT) → publishes ROS2 topics (`/soil_moisture`, `/battery_voltage`, `/irrigation_cmd`)
-- Begin **Gazebo (Gz Sim)** simulation of the arm and garden bed — no hardware needed yet
-- Validate motion planning concepts using MoveIt2 in sim
-- *Gazebo chosen here for lower barrier: no GPU required, mature MoveIt2 integration*
-
-### Phase 3 — Robot Arm (Hardware)
+- Bridge node: reads Brain data (serial/MQTT) → publishes ROS2 topics (`/soil_moisture`, `/battery_voltage`, `/irrigation_cmd`)
+- Begin **Gazebo (Gz Sim)** simulation of the arm and garden bed — validate motion planning with MoveIt2 before touching hardware
 - Deploy physical robot arm informed by Gazebo simulation
 - Migrate ESP32 nodes to micro-ROS for native ROS2 topic pub/sub
 - MoveIt2 handles motion planning for watering, trimming, plant-orientation tasks
 - Stack: ROS2 + MoveIt2 + Gz Sim + micro-ROS on ESP32
+- *Gazebo chosen for lower barrier: no GPU required, mature MoveIt2 integration*
 
 ### Phase 4 — Full Autonomy
 - Computer vision for plant health assessment and sunlight orientation
