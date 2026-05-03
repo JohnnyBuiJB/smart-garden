@@ -6,10 +6,10 @@
 #define PLANT_ID  0
 
 // ── GPIO ──────────────────────────────────────────────────────────────────────
-#define PIN_SENSOR_ADC    1   // ADC1_CH1 — analog output of capacitive sensor
-#define PIN_SENSOR_POWER  2   // P-FET gate: HIGH = sensor OFF, LOW = sensor ON
-#define PIN_BATTERY_ADC   3   // ADC1_CH3 — battery voltage divider (100k/100k)
-#define PIN_STATUS_LED    8   // Onboard LED (disable in production to save power)
+#define PIN_SENSOR_ADC    32  // ADC1_CH4 — analog output of capacitive sensor
+#define PIN_SENSOR_POWER  27  // P-FET gate: HIGH = sensor OFF, LOW = sensor ON
+#define PIN_BATTERY_ADC   34  // ADC1_CH6, input-only — battery voltage divider (100k/100k)
+#define PIN_STATUS_LED    2   // Onboard blue LED (disable in production to save power)
 
 // ── Central controller ESP-NOW MAC ───────────────────────────────────────────
 // Replace with the actual MAC address of the central ESP32 after reading it
