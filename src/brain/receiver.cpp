@@ -5,7 +5,7 @@
 #include <esp_now.h>
 
 // Survives deep sleep so readings persist across the receive window even if
-// the central briefly loses power (edge case; NVS handles long-term storage).
+// the Brain briefly loses power (edge case; NVS handles long-term storage).
 static RTC_DATA_ATTR SensorPacket s_packets[NUM_PLANTS];
 static RTC_DATA_ATTR bool         s_received[NUM_PLANTS];
 

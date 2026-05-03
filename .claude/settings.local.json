@@ -11,7 +11,8 @@
       "Bash(pio run:*)",
       "Bash(ls -lh /Users/johnnybui/repos/smart-garden/*.asm)",
       "Bash(jobs)",
-      "Bash(git:*)"
+      "Bash(git:*)",
+      "WebSearch"
     ]
   }
 }

@@ -7,7 +7,7 @@
 static volatile bool s_ack_received = false;
 static volatile bool s_ack_success  = false;
 
-static uint8_t s_central_mac[] = CENTRAL_MAC;
+static uint8_t s_brain_mac[] = BRAIN_MAC;
 
 static void on_data_sent(const uint8_t *mac, esp_now_send_status_t status) {
     s_ack_success  = (status == ESP_NOW_SEND_SUCCESS);
@@ -26,7 +26,7 @@ void transmitter_init() {
     esp_now_register_send_cb(on_data_sent);
 
     esp_now_peer_info_t peer = {};
-    memcpy(peer.peer_addr, s_central_mac, 6);
+    memcpy(peer.peer_addr, s_brain_mac, 6);
     peer.channel = 0;   // use current channel
     peer.encrypt = false;
     esp_now_add_peer(&peer);
@@ -38,7 +38,7 @@ bool transmitter_send(const SensorPacket *pkt) {
         s_ack_success  = false;
 
         esp_err_t err = esp_now_send(
-            s_central_mac,
+            s_brain_mac,
             (const uint8_t *)pkt,
             sizeof(SensorPacket)
         );

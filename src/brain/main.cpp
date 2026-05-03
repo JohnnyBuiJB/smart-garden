@@ -24,13 +24,13 @@ void setup() {
 
     bool cold_boot = (esp_sleep_get_wakeup_cause() != ESP_SLEEP_WAKEUP_TIMER);
     s_cycle++;
-    Serial.printf("[CENTRAL] cycle=%lu cold_boot=%d\n",
+    Serial.printf("[BRAIN] cycle=%lu cold_boot=%d\n",
                   (unsigned long)s_cycle, (int)cold_boot);
 
     // ── 2. Power monitoring ───────────────────────────────────────────────────
     power_init();
     float bat_v = power_battery_voltage();
-    Serial.printf("[CENTRAL] battery=%.2fV\n", bat_v);
+    Serial.printf("[BRAIN] battery=%.2fV\n", bat_v);
 
     // ── 3. Collect sensor readings via ESP-NOW ────────────────────────────────
     storage_init();
@@ -47,14 +47,14 @@ void setup() {
             storage_clear_missed(i);
         } else {
             storage_inc_missed(i);
-            Serial.printf("[CENTRAL] plant %d missed (total=%d)\n",
+            Serial.printf("[BRAIN] plant %d missed (total=%d)\n",
                           i, storage_get_missed(i));
         }
     }
 
     // ── 5. Irrigate if battery is sufficient ─────────────────────────────────
     if (power_is_low_battery()) {
-        Serial.printf("[CENTRAL] low battery (%.2fV), skipping irrigation\n", bat_v);
+        Serial.printf("[BRAIN] low battery (%.2fV), skipping irrigation\n", bat_v);
     } else {
         irrigation_run_cycle(readings, received);
     }
@@ -68,7 +68,7 @@ void setup() {
     if (active_ms * 1000ULL < sleep_us) {
         sleep_us -= (uint64_t)active_ms * 1000ULL;
     }
-    Serial.printf("[CENTRAL] active=%lu ms, sleeping %llu s\n",
+    Serial.printf("[BRAIN] active=%lu ms, sleeping %llu s\n",
                   active_ms, sleep_us / 1000000ULL);
 
     power_deep_sleep(sleep_us);

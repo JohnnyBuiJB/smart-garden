@@ -5,7 +5,7 @@
 static Preferences s_prefs;
 
 void storage_init() {
-    s_prefs.begin("sg_central", false);
+    s_prefs.begin("sg_brain", false);
 }
 
 void storage_save_last_watered(uint8_t plant_id, uint32_t timestamp_s) {

@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 
-// Packet transmitted from each sensor node to the central controller via ESP-NOW.
+// Packet transmitted from each sensor node to the Brain via ESP-NOW.
 // Both firmware images must include this header to ensure struct layout matches.
 struct SensorPacket {
     uint8_t  plant_id;       // 0–9

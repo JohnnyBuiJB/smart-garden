@@ -11,10 +11,10 @@
 #define PIN_BATTERY_ADC   34  // ADC1_CH6, input-only — battery voltage divider (100k/100k)
 #define PIN_STATUS_LED    2   // Onboard blue LED (disable in production to save power)
 
-// ── Central controller ESP-NOW MAC ───────────────────────────────────────────
-// Replace with the actual MAC address of the central ESP32 after reading it
+// ── Brain ESP-NOW MAC ─────────────────────────────────────────────────────────
+// Replace with the actual MAC address of the Brain ESP32 after reading it
 // via Serial.println(WiFi.macAddress()) on first boot.
-#define CENTRAL_MAC  { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }
+#define BRAIN_MAC  { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }
 
 // ── Timing ────────────────────────────────────────────────────────────────────
 #define SLEEP_INTERVAL_US   (30ULL * 60 * 1000000)  // 30 minutes
