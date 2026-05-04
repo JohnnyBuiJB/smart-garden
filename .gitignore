@@ -43,3 +43,7 @@
 
 # Build temporary files
 .pio
+
+# Python
+__pycache__/
+*.pyc
