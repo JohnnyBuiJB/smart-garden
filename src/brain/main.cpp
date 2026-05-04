@@ -1,79 +1,64 @@
 #include <Arduino.h>
-#include <esp_sleep.h>
+#include <WiFi.h>
+#include <PubSubClient.h>
 #include "config.h"
-#include "receiver.h"
 #include "irrigation.h"
-#include "storage.h"
-#include "power.h"
-#include "../common/espnow_packet.h"
 
-// Cycle counter survives deep sleep
-static RTC_DATA_ATTR uint32_t s_cycle = 0;
+static WiFiClient   s_wifi;
+static PubSubClient s_mqtt(s_wifi);
 
-// Track elapsed active time so sleep duration compensates for wake duration
-static unsigned long s_boot_ms = 0;
+// Topic format: garden/plants/{id}/irrigate
+// Payload format: {"duration_ms": 5000}
+static void on_mqtt_message(const char *topic, byte *payload, unsigned int len) {
+    int plant_id = -1;
+    sscanf(topic, "garden/plants/%d/irrigate", &plant_id);
+    if (plant_id < 0 || plant_id >= NUM_PLANTS) return;
 
-void setup() {
-    s_boot_ms = millis();
+    char buf[64];
+    memcpy(buf, payload, min(len, (unsigned int)sizeof(buf) - 1));
+    buf[min(len, (unsigned int)sizeof(buf) - 1)] = '\0';
 
-    Serial.begin(115200);
-    delay(100);
+    uint32_t duration_ms = 0;
+    sscanf(buf, "{\"duration_ms\":%lu}", &duration_ms);
+    if (duration_ms == 0) return;
 
-    // ── 1. Safe relay state (must be first to avoid accidental activation) ────
-    irrigation_init();
+    Serial.printf("[BRAIN] plant=%d duration=%lums\n", plant_id, (unsigned long)duration_ms);
+    irrigation_water_plant((uint8_t)plant_id, duration_ms);
+}
 
-    bool cold_boot = (esp_sleep_get_wakeup_cause() != ESP_SLEEP_WAKEUP_TIMER);
-    s_cycle++;
-    Serial.printf("[BRAIN] cycle=%lu cold_boot=%d\n",
-                  (unsigned long)s_cycle, (int)cold_boot);
+static void connect_wifi() {
+    Serial.printf("[BRAIN] connecting to %s", WIFI_SSID);
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+    Serial.printf("\n[BRAIN] IP %s\n", WiFi.localIP().toString().c_str());
+}
 
-    // ── 2. Power monitoring ───────────────────────────────────────────────────
-    power_init();
-    float bat_v = power_battery_voltage();
-    Serial.printf("[BRAIN] battery=%.2fV\n", bat_v);
-
-    // ── 3. Collect sensor readings via ESP-NOW ────────────────────────────────
-    storage_init();
-    receiver_init();
-    receiver_collect(RECEIVE_WINDOW_MS);
-    receiver_deinit();
-
-    // ── 4. Build readings snapshot ────────────────────────────────────────────
-    SensorPacket readings[NUM_PLANTS];
-    bool         received[NUM_PLANTS];
-    for (int i = 0; i < NUM_PLANTS; i++) {
-        received[i] = receiver_get(i, &readings[i]);
-        if (received[i]) {
-            storage_clear_missed(i);
+static void connect_mqtt() {
+    while (!s_mqtt.connected()) {
+        Serial.println("[BRAIN] connecting to MQTT broker...");
+        if (s_mqtt.connect("irrigation_controller")) {
+            s_mqtt.subscribe("garden/plants/+/irrigate");
+            Serial.println("[BRAIN] MQTT connected");
         } else {
-            storage_inc_missed(i);
-            Serial.printf("[BRAIN] plant %d missed (total=%d)\n",
-                          i, storage_get_missed(i));
+            Serial.printf("[BRAIN] MQTT failed rc=%d, retry in 2s\n", s_mqtt.state());
+            delay(2000);
         }
     }
+}
 
-    // ── 5. Irrigate if battery is sufficient ─────────────────────────────────
-    if (power_is_low_battery()) {
-        Serial.printf("[BRAIN] low battery (%.2fV), skipping irrigation\n", bat_v);
-    } else {
-        irrigation_run_cycle(readings, received);
-    }
-
-    // ── 6. Ensure safe relay state before sleep ───────────────────────────────
-    irrigation_safe_state();
-
-    // ── 7. Deep sleep — compensate for active time to stay in sync with nodes ─
-    unsigned long active_ms  = millis() - s_boot_ms;
-    uint64_t      sleep_us   = SLEEP_INTERVAL_US;
-    if (active_ms * 1000ULL < sleep_us) {
-        sleep_us -= (uint64_t)active_ms * 1000ULL;
-    }
-    Serial.printf("[BRAIN] active=%lu ms, sleeping %llu s\n",
-                  active_ms, sleep_us / 1000000ULL);
-
-    power_deep_sleep(sleep_us);
+void setup() {
+    Serial.begin(115200);
+    irrigation_init();
+    connect_wifi();
+    s_mqtt.setServer(MQTT_BROKER, MQTT_PORT);
+    s_mqtt.setCallback(on_mqtt_message);
+    connect_mqtt();
 }
 
 void loop() {
-    // Unreachable — device always deep sleeps before returning from setup()
+    if (!s_mqtt.connected()) connect_mqtt();
+    s_mqtt.loop();
 }

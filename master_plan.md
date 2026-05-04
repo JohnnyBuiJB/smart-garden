@@ -25,6 +25,15 @@
 - Stack: ROS2 + MoveIt2 + Gz Sim + micro-ROS on ESP32
 - *Gazebo chosen for lower barrier: no GPU required, mature MoveIt2 integration*
 
+#### Progress log
+- **2026-05-03** — Redesigned architecture: Raspberry Pi becomes the Brain (all decision logic); ESP32s demoted to thin I/O controllers. Sensor nodes → WiFi/MQTT (3–6 month AA battery life accepted). Laptop used as Pi simulator.
+- **2026-05-03** — Set up Pi software (`src/pi/`): Mosquitto broker, `brain.py` (MQTT decision logic), `simulator/sensor_sim.py` (fake sensor nodes). Conda env `smart-garden` created.
+- **2026-05-04** — Rewrote Brain ESP32 firmware as irrigation controller: removed ESP-NOW/deep-sleep/storage, added WiFi + PubSubClient MQTT subscribe on `garden/plants/+/irrigate`. Deleted `receiver`, `storage`, `power` modules.
+- **TODO** — Update sensor node firmware: replace ESP-NOW transmitter with WiFi/MQTT publish
+- **TODO** — End-to-end hardware test: sensor node → Pi brain → irrigation controller
+- **TODO** — Set up ROS2 Docker environment + MQTT-to-ROS2 bridge node
+- **TODO** — Select and procure robot arm (SO-ARM100 / Koch v1.1 / myCobot 280)
+
 ### Phase 4 — Full Autonomy
 - Computer vision for plant health assessment and sunlight orientation
 - Task scheduling: seeding, harvesting, trimming

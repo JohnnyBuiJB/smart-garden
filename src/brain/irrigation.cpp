@@ -36,24 +36,6 @@ void irrigation_water_plant(uint8_t plant_id, uint32_t duration_ms) {
     digitalWrite(VALVE_PINS[plant_id], HIGH);
 }
 
-void irrigation_run_cycle(const SensorPacket readings[], const bool received[]) {
-    for (int i = 0; i < NUM_PLANTS; i++) {
-        if (!received[i]) {
-            Serial.printf("[IRR] plant %d: no reading, skipping\n", i);
-            continue;
-        }
-
-        float moisture = readings[i].moisture_pct;
-        if (moisture < MOISTURE_THRESHOLD[i]) {
-            Serial.printf("[IRR] plant %d: moisture %.1f%% < threshold %.1f%%, watering\n",
-                          i, moisture, MOISTURE_THRESHOLD[i]);
-            irrigation_water_plant(i, WATERING_DURATION_MS[i]);
-        } else {
-            Serial.printf("[IRR] plant %d: moisture %.1f%% ok\n", i, moisture);
-        }
-    }
-}
-
 void irrigation_safe_state() {
     digitalWrite(PIN_PUMP, HIGH);
     for (int i = 0; i < NUM_PLANTS; i++) {
